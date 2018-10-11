@@ -1,0 +1,12 @@
+[package]
+name = "hazy"
+version = "0.1.0"
+authors = ["Esteban Küber <esteban@kuber.com.ar>"]
+edition = "2018"
+description = "Opaque Debug replacement with per-field configuration"
+license = "MIT"
+
+[dependencies]
+quote = "0.6"
+syn = "0.15"
+hazy_derive = {path = "./hazy_derive"}
