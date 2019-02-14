@@ -37,6 +37,8 @@ enum Opacity {
     Visible,
     /// This field will not be shown at all in the output, being replaced with `_`.
     Hidden,
+    /// This field will not be shown at all in the output, as if it didn't exist.
+    Skip,
     /// This field will not be shown using the field type's `OpaqueDebug` implementation.
     Default,
 }
@@ -45,6 +47,7 @@ enum Opacity {
 fn opacity(attrs: &[syn::Attribute]) -> Opacity {
     let mut hidden = false;
     let mut visible = false;
+    let mut skip = false;
     for attr in attrs {
         let path = &attr.path;
         if format!("{}", quote!(#path)) == "debug" {
@@ -54,12 +57,17 @@ fn opacity(attrs: &[syn::Attribute]) -> Opacity {
             if format!("{}", attr.tts) == "( Hidden )" {
                 hidden = true;
             }
+            if format!("{}", attr.tts) == "( Skip )" {
+                skip = true;
+            }
         }
     }
     if hidden {
         Opacity::Hidden
     } else if visible {
         Opacity::Visible
+    } else if skip {
+        Opacity::Skip
     } else {
         Opacity::Default
     }
@@ -70,14 +78,14 @@ fn mk_body(fields: &Fields, adt_ident: &syn::Ident) -> proc_macro2::TokenStream 
     let adt_ident_str = adt_ident.to_string();
     match fields {
         Fields::Named(named_fields) => {
-            let pats = named_fields.named.iter().enumerate().map(|(i, ref field)| {
+            let pats = named_fields.named.iter().enumerate().filter_map(|(i, ref field)| {
                 let opacity = opacity(&field.attrs);
                 let ident = field.ident.as_ref().unwrap();
                 let new_ident = syn::Ident::new(&format!("__field_{}", ident), ident.span());
                 let ty_sp = field.ty.span();
                 let field = format!("{}: ", ident);
                 let after = if i == named_fields.named.len() - 1 { "" } else { ", " };
-                match opacity {
+                Some(match opacity {
                     Opacity::Hidden => quote! {
                         write!(f, #field)?;
                         write!(f, "_")?;
@@ -93,7 +101,8 @@ fn mk_body(fields: &Fields, adt_ident: &syn::Ident) -> proc_macro2::TokenStream 
                         ::hazy::OpaqueDebug::fmt(&#new_ident, f)?;
                         write!(f, #after)?;
                     },
-                }
+                    Opacity::Skip => return None,
+                })
             }).collect::<Vec<_>>();
             quote! {{
                 write!(f, #adt_ident_str)?;
@@ -104,12 +113,12 @@ fn mk_body(fields: &Fields, adt_ident: &syn::Ident) -> proc_macro2::TokenStream 
             } }
         }
         Fields::Unnamed(unnamed_fields) => {
-            let pats = unnamed_fields.unnamed.iter().enumerate().map(|(i, ref field)| {
+            let pats = unnamed_fields.unnamed.iter().enumerate().filter_map(|(i, ref field)| {
                 let new_ident = syn::Ident::new(&format!("__field_{}", i), field.ty.span());
                 let after = if i == unnamed_fields.unnamed.len() - 1 { "" } else { ", " };
                 let opacity = opacity(&field.attrs);
                 let ty_sp = field.ty.span();
-                match opacity {
+                Some(match opacity {
                     Opacity::Hidden => quote! {
                         write!(f, "_")?;
                         write!(f, #after)?;
@@ -122,7 +131,8 @@ fn mk_body(fields: &Fields, adt_ident: &syn::Ident) -> proc_macro2::TokenStream 
                         ::hazy::OpaqueDebug::fmt(&#new_ident, f)?;
                         write!(f, #after)?;
                     },
-                }
+                    Opacity::Skip => return None,
+                })
             }).collect::<Vec<_>>();
             quote! {{
                 write!(f, #adt_ident_str)?;

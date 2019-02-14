@@ -9,6 +9,8 @@ struct SecretDemo<'a, T: ?Sized + ::hazy::OpaqueDebug> {
     d: SecretHeapSize,
     #[debug(Clear)]
     see_through: &'a str,
+    #[debug(Skip)]
+    skip: &'a str,
     #[debug(Hidden)]
     completely_hidden: SecretHeapSize,
 }
@@ -62,6 +64,7 @@ fn main() {
             e: "String".to_owned(),
         },
         see_through: "you can see this",
+        skip: "you can't see this field at all",
         completely_hidden: SecretHeapSize {
             e: "this entire struct will not be shown at all".into(),
         },

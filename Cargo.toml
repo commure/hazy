@@ -1,6 +1,6 @@
 [package]
 name = "hazy"
-version = "0.1.1"
+version = "0.1.0"
 authors = ["Esteban Küber <esteban@kuber.com.ar>"]
 edition = "2018"
 description = "Opaque Debug replacement with per-field configuration"
