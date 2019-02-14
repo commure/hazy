@@ -18,13 +18,26 @@ struct SecretHeapSize {
     e: String,
 }
 
-// TODO: not yet implemented
-// #[derive(OpaqueDebug)]
-// enum SecretHeapSize {
-//     HeapSize {
-//         e: String,
-//     }
-// }
+#[derive(OpaqueDebug)]
+enum SecretEnum {
+    HeapSize {
+        e: String,
+    }
+}
+
+#[derive(Debug)]
+enum Enum {
+    HeapSize {
+        e: String,
+    }
+}
+
+#[derive(OpaqueDebug)]
+struct A(usize);
+
+#[derive(OpaqueDebug)]
+struct B(#[debug(Clear)] A);
+
 
 #[derive(OpaqueDebug)]
 struct SecretFoo(usize);
@@ -66,20 +79,12 @@ fn main() {
             e: "String".to_owned(),
         },
     };
-    println!(
-        "{:#?}",
-        secret_demo,
-    );
-    println!(
-        "{:?}",
-        demo,
-    );
-    println!(
-        "{:?}",
-        SecretFoo(3),
-    );
-    println!(
-        "{:?}",
-        Foo(3),
-    );
+    // alt output is not yet supported
+    println!("{:#?}", secret_demo);
+    println!("{:?}", demo);
+    println!("{:?}", SecretFoo(3));
+    println!("{:?}", Foo(3));
+    let e = SecretEnum::HeapSize {e: "an enum".to_owned()};
+    println!("{:?}", e);
+    println!("{:?}", B(A(2)));
 }
