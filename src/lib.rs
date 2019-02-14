@@ -88,7 +88,11 @@ impl<'a> OpaqueDebug for &'a str {
     }
 }
 
-impl<T, E> OpaqueDebug for Result<T, E> where T: OpaqueDebug, E: ::std::fmt::Debug {
+impl<T, E> OpaqueDebug for Result<T, E>
+where
+    T: OpaqueDebug,
+    E: ::std::fmt::Debug,
+{
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
             Ok(ref x) => {
@@ -96,14 +100,15 @@ impl<T, E> OpaqueDebug for Result<T, E> where T: OpaqueDebug, E: ::std::fmt::Deb
                 OpaqueDebug::fmt(x, f)?;
                 write!(f, ")")
             }
-            Err(ref e) => {
-                write!(f, "Err({:?})", e)
-            }
+            Err(ref e) => write!(f, "Err({:?})", e),
         }
     }
 }
 
-impl<T> OpaqueDebug for Option<T> where T: OpaqueDebug {
+impl<T> OpaqueDebug for Option<T>
+where
+    T: OpaqueDebug,
+{
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
             Some(ref x) => {
@@ -116,7 +121,10 @@ impl<T> OpaqueDebug for Option<T> where T: OpaqueDebug {
     }
 }
 
-impl<T> OpaqueDebug for Box<T> where T: OpaqueDebug + ?Sized {
+impl<T> OpaqueDebug for Box<T>
+where
+    T: OpaqueDebug + ?Sized,
+{
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         write!(f, "Box {{ ")?;
         OpaqueDebug::fmt(&**self, f)?;
@@ -124,8 +132,10 @@ impl<T> OpaqueDebug for Box<T> where T: OpaqueDebug + ?Sized {
     }
 }
 
-
-impl<T> OpaqueDebug for Vec<T> where T: OpaqueDebug {
+impl<T> OpaqueDebug for Vec<T>
+where
+    T: OpaqueDebug,
+{
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self.len() {
             x if x < 13 => {
@@ -140,12 +150,15 @@ impl<T> OpaqueDebug for Vec<T> where T: OpaqueDebug {
                 write!(f, "]")?;
                 Ok(())
             }
-            _ => write!(f, "[...]")
+            _ => write!(f, "[...]"),
         }
     }
 }
 
-impl<T> OpaqueDebug for [T] where T: OpaqueDebug {
+impl<T> OpaqueDebug for [T]
+where
+    T: OpaqueDebug,
+{
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self.len() {
             x if x < 13 => {
@@ -160,11 +173,10 @@ impl<T> OpaqueDebug for [T] where T: OpaqueDebug {
                 write!(f, "]")?;
                 Ok(())
             }
-            _ => write!(f, "[...]")
+            _ => write!(f, "[...]"),
         }
     }
 }
-
 
 impl<'a, T: ?Sized + OpaqueDebug> OpaqueDebug for &'a T {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {

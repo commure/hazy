@@ -8,6 +8,7 @@ use self::proc_macro::TokenStream;
 use syn::{parse_macro_input, Data, DeriveInput, Fields};
 use syn::spanned::Spanned;
 
+/// Given a list of fields, generate the match arm pattern fields.
 fn mk_pat(fields: &Fields) -> proc_macro2::TokenStream {
     match fields {
         Fields::Named(named_fields) => {
@@ -29,12 +30,18 @@ fn mk_pat(fields: &Fields) -> proc_macro2::TokenStream {
     }
 }
 
+/// Field opacity level.
 enum Opacity {
+    /// This field will be shown using the default `Debug` implementation (which might be
+    /// provided by `hazy`).
     Visible,
+    /// This field will not be shown at all in the output, being replaced with `_`.
     Hidden,
+    /// This field will not be shown using the field type's `OpaqueDebug` implementation.
     Default,
 }
 
+/// Detect the opacity level of a given field.
 fn opacity(attrs: &[syn::Attribute]) -> Opacity {
     let mut hidden = false;
     let mut visible = false;
@@ -58,6 +65,7 @@ fn opacity(attrs: &[syn::Attribute]) -> Opacity {
     }
 }
 
+/// Given a list of fields, generate the match arm body that will generate the debug output.
 fn mk_body(fields: &Fields, adt_ident: &syn::Ident) -> proc_macro2::TokenStream {
     let adt_ident_str = adt_ident.to_string();
     match fields {

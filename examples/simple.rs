@@ -20,16 +20,12 @@ struct SecretHeapSize {
 
 #[derive(OpaqueDebug)]
 enum SecretEnum {
-    HeapSize {
-        e: String,
-    }
+    HeapSize { e: String },
 }
 
 #[derive(Debug)]
 enum Enum {
-    HeapSize {
-        e: String,
-    }
+    HeapSize { e: String },
 }
 
 #[derive(OpaqueDebug)]
@@ -37,7 +33,6 @@ struct A(usize);
 
 #[derive(OpaqueDebug)]
 struct B(#[debug(Clear)] A);
-
 
 #[derive(OpaqueDebug)]
 struct SecretFoo(usize);
@@ -69,7 +64,7 @@ fn main() {
         see_through: "you can see this",
         completely_hidden: SecretHeapSize {
             e: "this entire struct will not be shown at all".into(),
-        }
+        },
     };
     let demo = Demo {
         a: Box::new(b"bytestring".to_vec()).into_boxed_slice(),
@@ -84,7 +79,9 @@ fn main() {
     println!("{:?}", demo);
     println!("{:?}", SecretFoo(3));
     println!("{:?}", Foo(3));
-    let e = SecretEnum::HeapSize {e: "an enum".to_owned()};
+    let e = SecretEnum::HeapSize {
+        e: "an enum".to_owned(),
+    };
     println!("{:?}", e);
     println!("{:?}", B(A(2)));
 }
