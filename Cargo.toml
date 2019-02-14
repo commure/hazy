@@ -9,4 +9,4 @@ license = "MIT"
 [dependencies]
 quote = "0.6"
 syn = "0.15"
-hazy_derive = {path = "./hazy_derive"}
+hazy_derive = "0.1"

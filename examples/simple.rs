@@ -79,6 +79,10 @@ fn main() {
     println!("{:?}", demo);
     println!("{:?}", SecretFoo(3));
     println!("{:?}", Foo(3));
+    let a = Enum::HeapSize {
+        e: "an enum".to_owned(),
+    };
+    println!("{:?}", a);
     let e = SecretEnum::HeapSize {
         e: "an enum".to_owned(),
     };
